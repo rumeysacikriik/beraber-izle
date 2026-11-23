@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Beraber İzle & Oyna</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Impact&family=Share+Tech+Mono&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="stage-wrapper" id="stageWrapper">
+
+    <!-- Üst Oda Durumu -->
+    <div class="top-status-pill" id="roomStatusPill">
+      <span class="status-dot" id="roomStatusDot"></span>
+      <span id="roomStatusText">Tek Başına (Oda Yok)</span>
+      <button onclick="window.openJoinModal()" class="ml-1 underline text-pink-300 hover:text-white">Kod Gir</button>
+    </div>
+
+    <!-- Bildirim Kutusu -->
+    <div class="toast-banner" id="toastBanner">Bildirim</div>
+
+    <!-- EKRAN 1: ANA SAYFA (LOBİ) -->
+    <section class="screen active" id="screen-1">
+      <button class="menu-trigger" onclick="window.toggleDrawer(true)" aria-label="Menü">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="lobby-wrapper" id="lobbyWrapper">
+        <header class="title-group">
+          <h1 class="site-title">Sitenin Adı</h1>
+          <p class="welcome-sub">HOŞGELDİNİZ.</p>
+        </header>
+
+        <nav class="mode-buttons">
+          <button class="velvet-btn" onclick="window.handleModeButtonClick('watch')"><span>Beraber İzleme Modu</span></button>
+          <button class="velvet-btn" onclick="window.handleModeButtonClick('games')"><span>Beraber Oynama Modu</span></button>
+          <button class="velvet-btn" onclick="window.navigateScreen('screen-memories')"><span>Anı Kutumuz</span></button>
+        </nav>
+
+        <div class="character-walkway">
+          <div class="avatar-walker" id="myWalker">
+            <span class="avatar-tag" id="myWalkerTag">Sen</span>
+            <svg viewBox="0 0 60 80" width="52" height="68" id="myAvatarSvg">
+              <rect x="18" y="42" width="24" height="22" rx="6" fill="#151D2B"/>
+              <rect class="my-skin" x="21" y="62" width="6" height="12" rx="3" fill="#F5CBA7"/>
+              <rect class="my-skin" x="33" y="62" width="6" height="12" rx="3" fill="#F5CBA7"/>
+              <circle class="my-skin" cx="30" cy="26" r="16" fill="#F5CBA7"/>
+              <path class="my-hair" id="myHairShape" d="M12,26 C12,10 48,10 48,26 C50,36 46,44 43,40 C42,22 18,22 17,40 C14,44 10,36 12,26 Z" fill="#4A2311"/>
+              <circle class="my-eye" cx="24" cy="27" r="2.8" fill="#2E86C1"/>
+              <circle class="my-eye" cx="36" cy="27" r="2.8" fill="#2E86C1"/>
+              <path d="M26,33 Q30,36 34,33" stroke="#5C1013" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="avatar-walker partner-walker" id="partnerWalker" style="display: none;">
+            <span class="avatar-tag" id="partnerWalkerTag">Arkadaşın</span>
+            <svg viewBox="0 0 60 80" width="52" height="68" id="partnerAvatarSvg">
+              <rect x="18" y="42" width="24" height="22" rx="6" fill="#5C1013"/>
+              <rect class="p-skin" x="21" y="62" width="6" height="12" rx="3" fill="#F5CBA7"/>
+              <rect class="p-skin" x="33" y="62" width="6" height="12" rx="3" fill="#F5CBA7"/>
+              <circle class="p-skin" cx="30" cy="26" r="16" fill="#F5CBA7"/>
+              <path class="p-hair" id="partnerHairShape" d="M14,22 C14,10 46,10 46,22 C44,16 16,16 14,22 Z" fill="#1C2833"/>
+              <circle class="p-eye" cx="24" cy="27" r="2.8" fill="#27AE60"/>
+              <circle class="p-eye" cx="36" cy="27" r="2.8" fill="#27AE60"/>
+              <path d="M26,33 Q30,36 34,33" stroke="#5C1013" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <button class="invite-friend-btn" onclick="window.navigateScreen('screen-6')" title="Arkadaş Ara / Odaya Çağır">
+          <svg viewBox="0 0 42 32" width="42" height="32" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="9" r="5.5"/><path d="M3,26 C3,19 21,19 21,26 Z"/>
+            <line x1="31" y1="10" x2="31" y2="24"/><line x1="24" y1="17" x2="38" y2="17"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- SAĞ AÇILIR MENÜ -->
+      <aside class="side-drawer" id="sideDrawer">
+        <button class="drawer-back-btn" onclick="window.toggleDrawer(false)">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none">
+            <polyline points="15 19 8 12 15 5" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="drawer-menu-list">
+          <button class="drawer-item" onclick="window.toggleDrawer(false); window.openJoinModal();">Odaya Katıl</button>
+          <button class="drawer-item" onclick="window.toggleDrawer(false); window.navigateScreen('screen-5');">Hesap Ayarları</button>
+          <button class="drawer-item" onclick="window.toggleDrawer(false); window.openCharacterModal();">Karakterimi Düzenle</button>
+          <button class="drawer-item" onclick="window.toggleDrawer(false); window.leaveCurrentRoom();">Çıkış Yap</button>
+        </div>
+        <div class="drawer-bottom-user">
+          <div class="user-badge-circle" id="drawerUserBadge">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#FFFFFF" stroke-width="1.8">
+              <circle cx="12" cy="8" r="4"/><path d="M5,20 C5,14.5 19,14.5 19,20 Z"/>
+            </svg>
+          </div>
+          <span class="user-badge-text" id="drawerUsernameText">@kullanici</span>
+        </div>
+      </aside>
+    </section>
+
+    <!-- EKRAN 3: ODA KURMA BİLGİLENDİRME -->
+    <section class="screen" id="screen-3">
+      <button class="screen-back-btn" onclick="window.navigateScreen('screen-1')">← Ana Sayfa</button>
+      <div class="center-layout">
+        <div class="navy-info-box">
+          <p>Beraber izlemek için oda kurmanız gerekiyor.<br>Kurduğunuz oda numarasını arkadaşınızla<br>paylaşmayı unutmayınız.</p>
+        </div>
+        <div class="flex gap-3">
+          <button class="navy-pill-btn" onclick="window.createNewRoom()">Oluştur</button>
+          <button class="navy-pill-btn" onclick="window.openJoinModal()">Kodu Gir (Odaya Katıl)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKRAN 4: ODA NUMARASI -->
+    <section class="screen" id="screen-4">
+      <button class="screen-back-btn" onclick="window.navigateScreen('screen-1')">← Ana Sayfa</button>
+      <div class="center-layout">
+        <div class="navy-info-box code-box">
+          <p class="text-xs text-slate-300">Odanız başarı ile kuruldu oda numaranız:</p>
+          <div class="room-code-digits" id="generatedCodeDisplay">000000</div>
+          <p class="text-[11px] text-emerald-400 mt-1" id="waitingPartnerText">Arkadaşının bu kodu girmesi bekleniyor...</p>
+        </div>
+        <div class="flex gap-3">
+          <button class="navy-pill-btn" onclick="window.copyRoomCodeAction()">Numarayı Kopyala</button>
+          <button class="navy-pill-btn bg-emerald-800" onclick="window.proceedAfterRoomCreated()">İzleme / Oyun Ekranına Geç →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKRAN 5: HESAP AYARLARI -->
+    <section class="screen" id="screen-5">
+      <button class="screen-back-btn" onclick="window.navigateScreen('screen-1')">← Ana Sayfa</button>
+      <div class="center-layout">
+        <div class="settings-grid">
+          <div class="setting-card" onclick="window.navigateScreen('screen-7')">
+            <div class="card-top-navy"><span class="text-2xl">🪪</span></div>
+            <div class="card-bottom-gray">Profil & Kimlik Bilgileri</div>
+          </div>
+          <div class="setting-card" onclick="window.navigateScreen('screen-7')">
+            <div class="card-top-navy"><span class="text-2xl">🛡️</span></div>
+            <div class="card-bottom-gray">Güvenlik</div>
+          </div>
+          <div class="setting-card" onclick="window.freezeAccountPrompt()">
+            <div class="card-top-navy"><span class="text-2xl">❄️</span></div>
+            <div class="card-bottom-gray">Hesabı Dondur / Gizle</div>
+          </div>
+          <div class="setting-card" onclick="window.toggleThemeMode()">
+            <div class="card-top-navy"><span class="text-2xl">🎨</span></div>
+            <div class="card-bottom-gray">Tema Seçimi (Bordo/Mavi)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKRAN 6: ARAMA -->
+    <section class="screen" id="screen-6">
+      <button class="screen-back-btn" onclick="window.navigateScreen('screen-1')">← Ana Sayfa</button>
+      <div class="center-layout search-screen-layout">
+        <div class="search-top-bar">
+          <input type="text" id="searchRoomOrUserInput" class="navy-search-input" placeholder="Oda kodu veya kullanıcı adı giriniz...">
+          <button class="navy-search-btn" onclick="window.searchRoomsOrUsers()"><span>🔍 ARA</span></button>
+        </div>
+        <div class="lined-list" id="searchResultsList">
+          <div class="lined-row"><span>Aktif Oda #1042 (Beraber İzleme)</span><button class="row-icon-btn" onclick="window.joinRoomByCode('104200')">+</button></div>
+          <div class="lined-row"><span>Aktif Oda #2088 (SOS & Mini Oyun)</span><button class="row-icon-btn" onclick="window.joinRoomByCode('208800')">+</button></div>
+          <div class="lined-row"><span>Yeni 6 Haneli Özel Oda Oluştur</span><button class="row-icon-btn" onclick="window.createNewRoom()">+</button></div>
+          <div class="lined-row"><span>Oda Koduyla Doğrudan Bağlan</span><button class="row-icon-btn" onclick="window.openJoinModal()">+</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKRAN 7: PROFİL DÜZENLEME -->
+    <section class="screen" id="screen-7">
+      <button class="screen-back-btn" onclick="window.navigateScreen('screen-5')">← Ayarlar</button>
+      <div class="center-layout dual-cards-layout">
+        <div class="edit-modal-card">
+          <div class="edit-card-header">Kullanıcı adı değiştirme</div>
+          <div class="edit-card-body">
+            <input type="text" id="oldUsernameInput" class="maroon-pill-input" placeholder="Eski kullanıcı adını giriniz">
+            <input type="text" id="newUsernameInput" class="maroon-pill-input" placeholder="Yeni kullanıcı adını giriniz">
+            <input type="password" id="passwordConfirmInput" class="maroon-pill-input" placeholder="Şifre giriniz">
+            <button class="maroon-submit-btn" onclick="window.saveUsernameChange()">DEĞİŞTİR</button>
+          </div>
+        </div>
+        <div class="edit-modal-card">
+          <div class="edit-card-header">Profil fotoğrafı değiştirme</div>
+          <div class="edit-card-body justify-center gap-3">
+            <label class="maroon-pill-action">
+              <span>Kütüphaneden seç</span>
+              <input type="file" accept="image/*" class="hidden" onchange="window.handleProfilePhotoUpload(event)">
+            </label>
+            <button class="maroon-pill-action" onclick="window.openCharacterModal()">Karakter Avatarını Düzenle</button>
+            <button class="maroon-submit-btn" onclick="window.showToast('Profil görünümü güncellendi!')">DEĞİŞTİR</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKRAN 8: BERABER İZLEME MODU -->
+    <section class="screen watch-screen" id="screen-8">
+      <button class="screen-back-btn" onclick="window.navigateScreen('screen-1')">← Lobi</button>
+      <div class="watch-layout">
+        <div class="watch-left-col">
+          <div class="watch-url-bar">
+            <div class="url-input-wrap">
+              <input type="text" id="videoUrlInput" placeholder="YouTube, MP4, OK.ru, Drive veya Dizi Embed linki yapıştırın...">
+            </div>
+            <button class="url-start-btn" onclick="window.loadAndSyncVideoFromInput()">▶ BAŞLAT</button>
+          </div>
+
+          <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-300">
+            <span>Hızlı Test:</span>
+            <button onclick="window.quickLoadSample('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')" class="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded">🎬 Animasyon (MP4)</button>
+            <button onclick="window.quickLoadSample('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4')" class="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded">🍿 Kısa Film (MP4)</button>
+            <button onclick="window.quickLoadSample('https://www.youtube.com/watch?v=M7lc1UVf-VE')" class="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded">🎵 YouTube</button>
+            <span id="videoSyncStatusText" class="ml-auto text-amber-300">Hazır</span>
+          </div>
+
+          <div class="video-player-box" id="videoPlayerBox">
+            <video id="html5VideoPlayer" class="w-full h-full object-contain hidden" controls playsinline></video>
+            <div id="youtubePlayerContainer" class="w-full h-full hidden">
+              <iframe id="ytDirectIframe" class="w-full h-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+            <div id="videoEmptyPlaceholder" class="text-center p-4 text-pink-200/80 font-mono text-xs space-y-1.5">
+              <p class="text-sm font-bold text-white">📺 Senkronize Sinema Sahnesi</p>
+              <p>Yukarıya bir video bağlantısı yapıştırıp <b>BAŞLAT</b>'a basın veya Hızlı Test seçin.</p>
+            </div>
+            <div class="video-overlay-controls">
+              <button class="mic-toggle-btn" id="micToggleBtn" onclick="window.toggleVoiceMic()">
+                <span id="micIconSpan">🎙️</span><span id="micLabelSpan">Ses İlet (Kapalı)</span>
+              </button>
+              <div class="flex gap-1.5">
+                <button onclick="window.manualSyncPlayPause()" class="bg-[#151D2B]/90 text-white border border-white/40 px-2.5 py-1 rounded text-[11px] font-mono">⏯ Oynat/Durdur</button>
+                <button onclick="window.toggleVideoFullscreen()" class="bg-[#151D2B]/90 text-white border border-white/40 px-2 py-1 rounded text-[11px] font-mono">⛶</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="watch-right-chat">
+          <div class="text-[11px] font-mono text-pink-200 border-b border-white/20 pb-1 mb-1 flex justify-between">
+            <span>💬 Oda Sohbeti</span><span id="chatOnlineCount">Canlı</span>
+          </div>
+          <div class="chat-messages-area" id="chatMessagesArea"></div>
+          <div class="chat-bottom-bar">
+            <input type="text" id="chatInputBox" class="chat-white-input" placeholder="sohbet giriniz" onkeydown="if(event.key==='Enter') window.sendRoomChatMessage()">
+            <button class="chat-send-icon-btn" onclick="window.sendRoomChatMessage()">➤</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKRAN 9: BERABER OYNAMA MODU -->
+    <section class="screen" id="screen-games">
+      <button class="screen-back-btn" id="gamesBackBtn" onclick="window.handleGamesBackBtn()">← Lobi</button>
+
+      <div id="gamesMenuView" class="w-full h-full flex flex-col justify-center items-center pt-10 px-8">
+        <div class="game-menu-grid">
+          <div class="game-card" onclick="window.openSpecificGame('sudoku')">
+            <div class="game-card-icon-area"><span class="text-3xl text-white font-['Impact']">1 3 8</span></div>
+            <div class="game-card-title-area"><span class="game-card-title">SUDOKU</span></div>
+          </div>
+          <div class="game-card" onclick="window.openSpecificGame('guess')">
+            <div class="game-card-icon-area"><span class="text-3xl text-amber-300 font-['Impact']">? 5 8 ?</span></div>
+            <div class="game-card-title-area"><span class="game-card-title">SAYI TAHMİNİ</span></div>
+          </div>
+          <div class="game-card" onclick="window.openSpecificGame('word')">
+            <div class="game-card-icon-area"><span class="text-2xl text-emerald-300 font-['Impact']">[A][B][C]</span></div>
+            <div class="game-card-title-area"><span class="game-card-title">KELİME TAHMİNİ</span></div>
+          </div>
+          <div class="game-card" onclick="window.openSpecificGame('sos')">
+            <div class="game-card-icon-area"><span class="text-3xl text-white font-['Impact']">S - O - S</span></div>
+            <div class="game-card-title-area"><span class="game-card-title">SOS</span></div>
+          </div>
+          <div class="game-card" onclick="window.openSpecificGame('memory')">
+            <div class="game-card-icon-area"><span class="text-2xl text-white">★ ★ ★ ★</span></div>
+            <div class="game-card-title-area"><span class="game-card-title">HAFIZA OYUNU</span></div>
+          </div>
+          <div class="game-card" onclick="window.openSpecificGame('hangman')">
+            <div class="game-card-icon-area"><span class="text-3xl text-white">🪢</span></div>
+            <div class="game-card-title-area"><span class="game-card-title">ADAM ASMACA</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="activeGameStageView" class="w-full h-full pt-12 px-6 pb-3 hidden flex-col">
+        <div class="flex-1 bg-[#151D2B] rounded-xl border border-white/20 p-3 flex flex-col text-white relative shadow-2xl">
+          <div class="flex justify-between items-center bg-black/35 px-3 py-1.5 rounded-lg mb-2 font-mono text-xs">
+            <div class="flex items-center gap-2">
+              <button onclick="window.backToGamesMenu()" class="px-2 py-0.5 bg-[#5C1013] border border-pink-300/50 rounded text-[11px]">← Oyunlar</button>
+              <span>Senin Skorun: <b class="text-emerald-400" id="myGameScore">0</b></span>
+            </div>
+            <div class="text-amber-300 font-bold" id="gameStatusTitle">Oyun Sahnesi</div>
+            <div class="flex items-center gap-2">
+              <span>Karşı Taraf: <b class="text-pink-400" id="partnerGameScore">0</b></span>
+              <button onclick="window.showScoreComparisonModal()" class="px-2 py-0.5 bg-amber-500 text-black font-bold rounded text-[10px]">🏆 Skor</button>
+            </div>
+          </div>
+
+          <div id="gameAreaSudoku" class="flex-1 hidden items-center justify-around font-mono">
+            <div class="flex flex-col gap-2 max-w-[210px] text-xs text-slate-300">
+              <p class="text-white font-bold">🧩 Mini Sudoku (4x4)</p>
+              <button onclick="window.resetSudokuBoard()" class="mt-1 px-3 py-1.5 bg-[#5C1013] border border-pink-300 rounded font-bold text-white text-xs">Yeni Sudoku Diz</button>
+            </div>
+            <div id="sudokuGridContainer" class="grid grid-cols-4 gap-1.5 bg-black/40 p-2.5 rounded-lg border border-white/20"></div>
+          </div>
+
+          <div id="gameAreaGuess" class="flex-1 hidden flex-col justify-center items-center gap-3 font-mono">
+            <div id="guessHintBox" class="text-sm font-bold text-amber-300 bg-black/40 px-4 py-2 rounded-lg border border-white/15">1 - 50 arası tahmininizi girin!</div>
+            <div class="flex gap-2">
+              <input type="number" id="guessNumberInput" min="1" max="50" placeholder="1 - 50" class="w-28 px-3 py-1.5 rounded bg-black/60 border border-white/30 text-center text-white outline-none">
+              <button onclick="window.submitNumberGuess()" class="px-4 py-1.5 bg-[#5C1013] border border-pink-300 rounded font-bold text-xs">TAHMİN ET</button>
+            </div>
+          </div>
+
+          <div id="gameAreaWord" class="flex-1 hidden flex-col justify-center items-center gap-2.5 font-mono">
+            <div id="wordBoxesArea" class="flex gap-1.5"></div>
+            <div id="wordHintText" class="text-xs text-amber-300">5 harfli kelime tahmin et!</div>
+            <div class="flex gap-2 mt-1">
+              <input type="text" id="wordGuessInput" maxlength="5" placeholder="5 HARF" class="w-36 px-3 py-1.5 rounded bg-black/60 border border-white/30 text-center text-white uppercase outline-none">
+              <button onclick="window.submitWordGuess()" class="px-4 py-1.5 bg-[#5C1013] border border-pink-300 rounded font-bold text-xs">DENE</button>
+              <button onclick="window.newWordRound()" class="px-3 py-1.5 bg-white/10 rounded text-xs">Yeni Kelime</button>
+            </div>
+          </div>
+
+          <div id="gameAreaSos" class="flex-1 hidden items-center justify-around">
+            <div class="flex flex-col gap-2 items-center">
+              <div class="flex gap-2">
+                <button id="pickBtnS" onclick="window.selectSosLetter('S')" class="w-11 h-11 rounded-lg bg-[#5C1013] border-2 border-white font-bold text-lg">S</button>
+                <button id="pickBtnO" onclick="window.selectSosLetter('O')" class="w-11 h-11 rounded-lg bg-slate-800 border border-white/30 font-bold text-lg">O</button>
+              </div>
+              <button onclick="window.resetSosBoard()" class="mt-2 px-3 py-1 bg-white/10 rounded text-[11px] font-mono">Tahtayı Sıfırla</button>
+            </div>
+            <div id="sosGridContainer" class="grid grid-cols-5 gap-1.5 bg-black/40 p-2 rounded-lg border border-white/15"></div>
+          </div>
+
+          <div id="gameAreaMemory" class="flex-1 hidden flex-col items-center justify-center gap-2 font-mono">
+            <button onclick="window.resetMemoryGame()" class="px-2.5 py-0.5 bg-[#5C1013] border border-pink-300 rounded text-[11px] text-white">Kartları Karıştır</button>
+            <div id="memoryGridContainer" class="grid grid-cols-4 gap-2.5 bg-black/40 p-3 rounded-lg border border-white/15"></div>
+          </div>
+
+          <div id="gameAreaHangman" class="flex-1 hidden items-center justify-around font-mono">
+            <svg viewBox="0 0 80 90" width="95" height="110" class="bg-black/30 rounded-lg p-2 border border-white/10">
+              <line x1="10" y1="82" x2="70" y2="82" stroke="#D9D9D9" stroke-width="4"/>
+              <polyline points="58,82 58,12 30,12 30,22" stroke="#FFFFFF" stroke-width="2.5" fill="none"/>
+              <circle id="hmPart1" cx="30" cy="29" r="7" stroke="#FFFFFF" stroke-width="2.2" fill="none" class="hidden"/>
+              <line id="hmPart2" x1="30" y1="36" x2="30" y2="58" stroke="#FFFFFF" stroke-width="2.2" class="hidden"/>
+              <line id="hmPart3" x1="30" y1="44" x2="18" y2="38" stroke="#FFFFFF" stroke-width="2.2" class="hidden"/>
+              <line id="hmPart4" x1="30" y1="44" x2="42" y2="38" stroke="#FFFFFF" stroke-width="2.2" class="hidden"/>
+              <line id="hmPart5" x1="30" y1="58" x2="20" y2="72" stroke="#FFFFFF" stroke-width="2.2" class="hidden"/>
+              <line id="hmPart6" x1="30" y1="58" x2="40" y2="72" stroke="#FFFFFF" stroke-width="2.2" class="hidden"/>
+            </svg>
+            <div class="flex flex-col items-center gap-2">
+              <div id="hangmanWordDisplay" class="text-xl tracking-[6px] font-bold text-amber-300">_ _ _ _ _</div>
+              <div id="hangmanKeyboard" class="grid grid-cols-8 gap-1 max-w-[320px]"></div>
+              <button onclick="window.resetHangmanGame()" class="mt-1 px-3 py-1 bg-white/10 rounded text-[11px]">Yeni Kelime</button>
+            </div>
+          </div>
+
+          <span id="highScoreBannerText" class="hidden"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKRAN 10: ANI KUTUMUZ -->
+    <section class="screen" id="screen-memories">
+      <button class="screen-back-btn" onclick="window.navigateScreen('screen-1')">← Lobi</button>
+      <div class="w-full h-full pt-12 px-6 pb-4 flex gap-4">
+        <div class="w-[250px] bg-[#151D2B] p-3.5 rounded-xl border border-white/20 flex flex-col gap-2.5 text-white font-mono">
+          <h3 class="text-xs font-bold text-pink-300">💌 YENİ ANI EKLE</h3>
+          <input type="text" id="memoryTitleInput" placeholder="Anı Başlığı" class="w-full px-2.5 py-1.5 rounded bg-black/40 border border-white/20 text-xs text-white outline-none">
+          <textarea id="memoryNoteInput" rows="4" placeholder="Anı notumuz..." class="w-full p-2.5 rounded bg-black/40 border border-white/20 text-xs text-white outline-none resize-none"></textarea>
+          <button onclick="window.addSharedMemory()" class="mt-auto py-2 bg-[#5C1013] border border-pink-300/50 rounded-lg font-bold text-xs">Kaydet</button>
+        </div>
+        <div class="flex-1 bg-[#151D2B] p-3.5 rounded-xl border border-white/20 flex flex-col text-white font-mono">
+          <h3 class="text-xs font-bold text-amber-300 mb-2">📦 ORTAK ANI KUTUMUZ</h3>
+          <div id="memoriesListContainer" class="flex-1 overflow-y-auto grid grid-cols-2 gap-2.5 pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODALLAR -->
+    <div class="custom-modal" id="joinRoomModal">
+      <div class="modal-card">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-mono font-bold text-sm text-pink-300">🔑 Odaya Katıl</h3>
+          <button onclick="window.closeAllModals()" class="text-slate-400 hover:text-white text-lg">✕</button>
+        </div>
+        <div class="flex gap-2 mb-3">
+          <input type="text" id="joinCodeInput" maxlength="6" placeholder="000000" class="flex-1 bg-black/50 border border-white/30 rounded-lg px-3 py-2 text-center font-mono text-lg tracking-widest text-white outline-none">
+          <button onclick="window.joinRoomFromInput()" class="px-5 py-2 bg-[#5C1013] border border-pink-300 rounded-lg font-mono font-bold text-xs">BAĞLAN</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="custom-modal" id="characterModal">
+      <div class="modal-card">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-mono font-bold text-sm text-pink-300">🎨 Karakterimi Düzenle</h3>
+          <button onclick="window.closeAllModals()" class="text-slate-400 hover:text-white text-lg">✕</button>
+        </div>
+        <div class="space-y-3 font-mono text-xs">
+          <div class="flex items-center justify-between">
+            <span>Karakter Tipi:</span>
+            <div class="flex gap-2">
+              <button onclick="window.updateMyAvatarConfig('gender', 'girl')" id="btnGenderGirl" class="px-3 py-1 rounded bg-[#5C1013] border border-white">Kız</button>
+              <button onclick="window.updateMyAvatarConfig('gender', 'boy')" id="btnGenderBoy" class="px-3 py-1 rounded bg-black/40 border border-white/20">Erkek</button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Ten Rengi:</span>
+            <div class="flex gap-2">
+              <button onclick="window.updateMyAvatarConfig('skin', '#FDEBD0')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#FDEBD0"></button>
+              <button onclick="window.updateMyAvatarConfig('skin', '#F5CBA7')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#F5CBA7"></button>
+              <button onclick="window.updateMyAvatarConfig('skin', '#E0AC69')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#E0AC69"></button>
+              <button onclick="window.updateMyAvatarConfig('skin', '#8D5524')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#8D5524"></button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Saç Rengi:</span>
+            <div class="flex gap-2">
+              <button onclick="window.updateMyAvatarConfig('hair', '#1C2833')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#1C2833"></button>
+              <button onclick="window.updateMyAvatarConfig('hair', '#4A2311')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#4A2311"></button>
+              <button onclick="window.updateMyAvatarConfig('hair', '#F4D03F')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#F4D03F"></button>
+              <button onclick="window.updateMyAvatarConfig('hair', '#C0392B')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#C0392B"></button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Göz Rengi:</span>
+            <div class="flex gap-2">
+              <button onclick="window.updateMyAvatarConfig('eye', '#2E86C1')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#2E86C1"></button>
+              <button onclick="window.updateMyAvatarConfig('eye', '#27AE60')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#27AE60"></button>
+              <button onclick="window.updateMyAvatarConfig('eye', '#5D4037')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#5D4037"></button>
+              <button onclick="window.updateMyAvatarConfig('eye', '#8E44AD')" class="w-6 h-6 rounded-full border-2 border-white" style="background:#8E44AD"></button>
+            </div>
+          </div>
+        </div>
+        <button onclick="window.closeAllModals(); window.showToast('Karakterin güncellendi!');" class="mt-4 w-full py-2 bg-[#5C1013] border border-pink-300 rounded-lg font-mono font-bold text-xs">KAYDET</button>
+      </div>
+    </div>
+
+    <div class="custom-modal" id="scoreResultModal">
+      <div class="modal-card text-center font-mono">
+        <div class="text-3xl mb-1">🏆</div>
+        <h3 class="text-base font-bold text-amber-300 mb-2">YARIŞMA SKOR TABLOSU</h3>
+        <div class="bg-black/40 p-3 rounded-lg border border-white/15 space-y-1.5 text-xs mb-3">
+          <div class="flex justify-between"><span>Senin Skorun:</span> <b class="text-emerald-400" id="modalMyScore">0 Puan</b></div>
+          <div class="flex justify-between"><span>Karşı Tarafın Skoru:</span> <b class="text-pink-400" id="modalPartnerScore">0 Puan</b></div>
+        </div>
+        <div class="bg-[#5C1013]/80 p-2.5 rounded-lg border border-amber-400/50 text-xs mb-4" id="modalHighScoreBox"></div>
+        <button onclick="window.closeAllModals()" class="w-full py-2 bg-amber-500 text-black font-bold rounded-lg text-xs">Tamam</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODÜLER JAVASCRIPT DOSYALARIMIZ -->
+  <script type="module" src="app.js"></script>
+  <script src="player.js"></script>
+  <script src="games.js"></script>
+</body>
+</html>
